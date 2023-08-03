@@ -2,11 +2,11 @@ package ru.danny.showcase;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("api/tasks")
@@ -21,6 +21,16 @@ public class TasksRestController {
     @GetMapping
     public ResponseEntity<List<Task>> handleGetAllTasks() {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(this.taskRepository.findAll());
+
+    }
+
+    @PostMapping
+    public ResponseEntity<Task> handleCreateNewTask(@RequestBody NewTaskPayload payload,
+                                                    UriComponentsBuilder uriComponentsBuilder) {
+        var task = new Task(payload.details());
+        this.taskRepository.save(task);
+        return ResponseEntity.created(uriComponentsBuilder.path("/api/taks/{taskId}")
+                .build(Map.of("taskId", task.id()))).contentType(MediaType.APPLICATION_JSON).body(task);
 
     }
 
