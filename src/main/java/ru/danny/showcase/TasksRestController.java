@@ -43,7 +43,7 @@ public class TasksRestController {
         } else {
             var task = new Task(payload.details());
             this.taskRepository.save(task);
-            return ResponseEntity.created(uriComponentsBuilder.path("/api/taks/{taskId}")
+            return ResponseEntity.created(uriComponentsBuilder.path("/api/tasks/{taskId}")
                     .build(Map.of("taskId", task.id()))).contentType(MediaType.APPLICATION_JSON).body(task);
 
         }
