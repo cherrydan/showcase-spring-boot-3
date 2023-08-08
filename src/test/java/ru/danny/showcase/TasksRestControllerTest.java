@@ -79,13 +79,13 @@ class TasksRestControllerTest {
             assertNotNull(task.id());
             assertEquals(details, task.details());
             assertFalse(task.completed());
-            assertEquals(URI.create("http://localhost:8080/api/taks/" + task.id()),
+            assertEquals(URI.create("http://localhost:8080/api/tasks/" + task.id()),
                     responseEntity.getHeaders().getLocation());
             verify(this.taskRepository).save(task);
         } else {
             assertInstanceOf(Task.class, responseEntity.getBody());
         }
-        verifyNoMoreInteractions();
+        verifyNoMoreInteractions(this.taskRepository);
     }
 
 
