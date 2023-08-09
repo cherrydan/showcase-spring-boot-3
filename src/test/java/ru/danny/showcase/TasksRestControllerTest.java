@@ -59,7 +59,7 @@ class TasksRestControllerTest {
     }
 
     @Test
-
+    @DisplayName("POST api/tasks возвращает валидный HTTP ответ")
     public void handleCreateNewTask_PayloadIsValid_ReturnsValidResponseEntityTest() {
         // given
         var details = "Помыть посуду";
