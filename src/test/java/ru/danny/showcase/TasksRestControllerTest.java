@@ -7,11 +7,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 import org.mockito.junit.jupiter.MockitoExtension;
-//import org.springframework.context.MessageSource;
+
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.util.UriComponentsBuilder;
+
 
 import java.net.URI;
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
 
 
 @ExtendWith(MockitoExtension.class)
@@ -36,7 +38,7 @@ class TasksRestControllerTest {
 
     @Test
     @DisplayName("GET api/tasks/ возвращает валидный HTTP ответ с кодом 200 и списком задач")
-    void handleGetAllTaskTest_ReturnsValidResponseEntity() {
+    void handleGetAllTaskTest_ReturnsValidResponseEntityTest() {
         //given Дано
         var tasks = List.of(new Task(UUID.randomUUID(), "Сделать инглиш", true),
                 new Task(UUID.randomUUID(),"Поменять горшок Кейки", false));
@@ -57,8 +59,8 @@ class TasksRestControllerTest {
     }
 
     @Test
-
-    public void handleCreateNewTask_PayloadIsValid_ReturnsValidResponseEntity() {
+    @DisplayName("POST api/tasks возвращает валидный HTTP ответ")
+    public void handleCreateNewTask_PayloadIsValid_ReturnsValidResponseEntityTest() {
         // given
         var details = "Помыть посуду";
 
