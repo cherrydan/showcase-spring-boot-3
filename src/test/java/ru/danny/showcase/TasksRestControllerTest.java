@@ -1,5 +1,7 @@
 package ru.danny.showcase;
-
+// --------------------------------------------------
+// Класс модульных тестов сервиса
+// --------------------------------------------------
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
