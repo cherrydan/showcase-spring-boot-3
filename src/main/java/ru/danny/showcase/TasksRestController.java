@@ -3,6 +3,7 @@ package ru.danny.showcase;
 import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -29,6 +30,7 @@ public class TasksRestController {
     }
 
     @PostMapping
+    @Transactional
     public ResponseEntity<?> handleCreateNewTask(@RequestBody NewTaskPayload payload,
                                                     UriComponentsBuilder uriComponentsBuilder,
                                                  Locale locale) {
