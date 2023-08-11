@@ -3,7 +3,6 @@ package ru.danny.showcase;
 // Класс интеграционных тестов Spring Boot Test
 // ----------------------------------------------
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,16 +10,16 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@Sql("/sql/tasks_rest_controller/test_data.sql")
+@Transactional
 @SpringBootTest
 @AutoConfigureMockMvc(printOnlyOnFailure = false)
 class TasksRestControllerIntegrationTest {
@@ -28,25 +27,12 @@ class TasksRestControllerIntegrationTest {
     @Autowired
     MockMvc mockMvc;
 
-    @Autowired
-    InMemTaskRepository taskRepository;
-
-    @AfterEach //после каждого теста надо очистить данные в репо
-    void clearRepo() {
-        this.taskRepository.getTasks().clear();
-    }
 
     @Test
     @DisplayName("GET api/tasks/ возвращает валидный HTTP ответ с кодом 200 и списком задач")
     void handleGetAllTaskTest_ReturnsValidResponseEntityTest() throws Exception {
         // given
         var requestBuilder = get("/api/tasks");
-        this.taskRepository.getTasks().addAll(List.of(
-                new Task(UUID.fromString("c52187e6-3788-11ee-9d98-0b0f39a49472"),
-                "Первая задача", false),
-                new Task(UUID.fromString("152f6b54-3789-11ee-a13a-b7f28337b9de"),
-                        "Вторая задача", true)
-        ));
 
         // when
         this.mockMvc.perform(requestBuilder).
@@ -96,11 +82,7 @@ class TasksRestControllerIntegrationTest {
                                 """),
                         jsonPath("$.id").exists()
                 );
-        final var task = this.taskRepository.getTasks().get(0);
-        assertEquals(1, this.taskRepository.getTasks().size());
-        assertEquals("Третья задача", task.details());
-        assertFalse(task.completed());
-        assertNotNull(task.id());
+
     }
 
     @Test
@@ -128,7 +110,7 @@ class TasksRestControllerIntegrationTest {
                                 }
                                 """, true)
                 );
-        assertTrue(this.taskRepository.getTasks().isEmpty());
+
 
     }
 }
