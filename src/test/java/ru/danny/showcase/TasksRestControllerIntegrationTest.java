@@ -3,20 +3,23 @@ package ru.danny.showcase;
 // Класс интеграционных тестов Spring Boot Test
 // ----------------------------------------------
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 import java.util.UUID;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc(printOnlyOnFailure = false)
@@ -27,6 +30,11 @@ class TasksRestControllerIntegrationTest {
 
     @Autowired
     InMemTaskRepository taskRepository;
+
+    @AfterEach //после каждого теста надо очистить данные в репо
+    void clearRepo() {
+        this.taskRepository.getTasks().clear();
+    }
 
     @Test
     @DisplayName("GET api/tasks/ возвращает валидный HTTP ответ с кодом 200 и списком задач")
@@ -60,10 +68,67 @@ class TasksRestControllerIntegrationTest {
 ]
 """));
 
-
-
-
     }
 
+    @Test
+    @DisplayName("POST api/tasks принимает валидные данные, возвращает валидный HTTP ответ")
+    public void handleCreateNewTask_PayloadIsValid_ReturnsValidResponseEntityTest() throws Exception {
+        // given
+        var requestBuilder = post("/api/tasks")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "details": "Третья задача"
+                        }
+                        """);
 
+        // when
+        this.mockMvc.perform(requestBuilder)
+                // then
+                .andExpectAll(
+                        status().isCreated(),
+                        header().exists(HttpHeaders.LOCATION),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        content().json("""
+                                {
+                                    "details": "Третья задача"
+                                }
+                                """),
+                        jsonPath("$.id").exists()
+                );
+        final var task = this.taskRepository.getTasks().get(0);
+        assertEquals(1, this.taskRepository.getTasks().size());
+        assertEquals("Третья задача", task.details());
+        assertFalse(task.completed());
+        assertNotNull(task.id());
+    }
+
+    @Test
+    @DisplayName("POST api/tasks принимает НЕВАЛИДНЫЕ данные, возвращает валидный HTTP ответ")
+    public void handleCreateNewTask_PayloadIsValid_ReturnsInvalidResponseEntityTest() throws Exception {
+        // given
+        var requestBuilder = post("/api/tasks")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "details": null
+                        }
+                        """);
+
+        // when
+        this.mockMvc.perform(requestBuilder)
+                // then
+                .andExpectAll(
+                        status().isBadRequest(),
+                        header().doesNotExist(HttpHeaders.LOCATION),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        content().json("""
+                                {
+                                    "errors": ["Task details must be set!"]
+                                }
+                                """, true)
+                );
+        assertTrue(this.taskRepository.getTasks().isEmpty());
+
+    }
 }
