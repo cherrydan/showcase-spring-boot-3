@@ -14,6 +14,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -32,7 +33,8 @@ class TasksRestControllerIntegrationTest {
     @DisplayName("GET api/tasks/ возвращает валидный HTTP ответ с кодом 200 и списком задач")
     void handleGetAllTaskTest_ReturnsValidResponseEntityTest() throws Exception {
         // given
-        var requestBuilder = get("/api/tasks");
+        var requestBuilder = get("/api/tasks").
+                with(httpBasic("user1", "password1"));
 
         // when
         this.mockMvc.perform(requestBuilder).
@@ -61,6 +63,7 @@ class TasksRestControllerIntegrationTest {
     public void handleCreateNewTask_PayloadIsValid_ReturnsValidResponseEntityTest() throws Exception {
         // given
         var requestBuilder = post("/api/tasks")
+                .with(httpBasic("user2", "password2"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
@@ -90,6 +93,7 @@ class TasksRestControllerIntegrationTest {
     public void handleCreateNewTask_PayloadIsValid_ReturnsInvalidResponseEntityTest() throws Exception {
         // given
         var requestBuilder = post("/api/tasks")
+                .with(httpBasic("user2", "password2"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
